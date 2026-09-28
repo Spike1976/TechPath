@@ -9,7 +9,7 @@ TechPath is a native Android-first technical learning system. It is project-driv
 Implemented in source:
 
 - Native Kotlin + Jetpack Compose Android structure
-- Local-first catalog and progress storage
+- Local-first curriculum and progress storage
 - Goal selection and project paths
 - Starting-point diagnostic that does not reveal lesson answers during the test
 - Adaptive next-concept selection based on prerequisites and demonstrated mastery
@@ -17,12 +17,12 @@ Implemented in source:
 - 144 curated concepts
 - 8 end-to-end project learning paths
 - Search across concepts and real-world uses
-- Per-concept: plain-language explanation, why-it-matters, prerequisites, five-step learning sequence, hands-on task, real-world uses, knowledge check, next steps, and safety/authorization notes where appropriate
+- Per-concept plain-language explanation, why it matters, prerequisites, five-step learning sequence, hands-on task, real-world uses, knowledge check, next steps, and safety/authorization notes where appropriate
 - Persistent started/mastered progress
 - Per-category and overall mastery dashboards
 - Build/project readiness percentages
 - Legal/safe device-analysis boundary content for owner-authorized hardware
-- Lab hub for networking, BLE, USB/serial, ESP32 integration, and device analysis learning
+- Lab hub for networking, BLE, USB/serial, ESP32 integration, and device-analysis learning
 
 ## Knowledge categories
 
@@ -60,26 +60,30 @@ The starting-point diagnostic is separate from lessons. It does not show explana
 
 ## Content quality rules
 
-The catalog is validated for:
+The curriculum is validated for:
 
 - unique concept IDs
+- valid category references
 - valid prerequisite references
 - valid next-step references
 - valid project-path references
 - minimum explanation depth
 - minimum five learning steps per concept
 - hands-on exercise presence
+- real-world-use presence
 - knowledge-check presence
 
 `validate_catalog.py` performs these checks.
 
 ## Architecture
 
-- `model/` — catalog, concept, project, progress models
+- `model/` — curriculum, concept, project, and progress models
 - `engine/` — learning-path and recommendation logic
-- `data/` — local catalog loader and persistent progress
+- `data/` — local curriculum loader and persistent progress
 - `ui/` — Compose application screens
-- `assets/catalog.json` — curated knowledge graph/content
+- `assets/catalog/catalog.part*.b64` — compressed offline curriculum knowledge graph
+
+The curriculum is bundled in the APK. `CatalogRepository` joins the asset segments, Base64-decodes them, decompresses the GZIP payload, and loads the JSON knowledge graph locally. No server is required to browse or learn from the initial curriculum.
 
 ## Current unfinished beta items
 
@@ -106,4 +110,4 @@ Project configuration targets current 2026 Android tooling:
 - compileSdk / targetSdk 37
 - minSdk 26
 
-This workspace did not contain an Android SDK or Gradle distribution, so the full APK build could not be executed locally in this environment. The pure Kotlin learning engine was compiled successfully and the catalog validation passed.
+This workspace did not contain an Android SDK or Gradle distribution, so the full APK build could not be executed locally in this environment. The pure Kotlin learning engine compiled successfully and the original 144-concept curriculum passed integrity validation before upload.
