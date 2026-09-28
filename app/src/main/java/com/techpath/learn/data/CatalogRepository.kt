@@ -1,17 +1,39 @@
 package com.techpath.learn.data
 
 import android.content.Context
-import com.techpath.learn.model.*
+import android.util.Base64
+import com.techpath.learn.model.Catalog
+import com.techpath.learn.model.Category
+import com.techpath.learn.model.Concept
+import com.techpath.learn.model.ProjectPath
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayInputStream
+import java.util.zip.GZIPInputStream
 
 class CatalogRepository(private val context: Context) {
     fun load(): Catalog {
-        val raw = context.assets.open("catalog.json").bufferedReader().use { it.readText() }
+        val encoded = (1..3).joinToString("") { part ->
+            context.assets
+                .open("catalog/catalog.part$part.b64")
+                .bufferedReader()
+                .use { it.readText().trim() }
+        }
+
+        val compressed = Base64.decode(encoded, Base64.DEFAULT)
+        val raw = GZIPInputStream(ByteArrayInputStream(compressed))
+            .bufferedReader(Charsets.UTF_8)
+            .use { it.readText() }
+
         val root = JSONObject(raw)
         return Catalog(
             categories = root.getJSONArray("categories").mapObjects { o ->
-                Category(o.getString("id"), o.getString("title"), o.getString("description"), o.optString("icon", "•"))
+                Category(
+                    id = o.getString("id"),
+                    title = o.getString("title"),
+                    description = o.getString("description"),
+                    icon = o.optString("icon", "•")
+                )
             },
             concepts = root.getJSONArray("concepts").mapObjects { o ->
                 Concept(
